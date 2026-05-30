@@ -3,14 +3,13 @@ package com.talent.java.batch11.springbootapp.controller;
 import com.talent.java.batch11.springbootapp.model.Account;
 import com.talent.java.batch11.springbootapp.request.LoginInfo;
 import com.talent.java.batch11.springbootapp.request.RegisterInfo;
-import com.talent.java.batch11.springbootapp.request.TransferInfo;
 import com.talent.java.batch11.springbootapp.service.AccountService;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -53,9 +52,17 @@ public class AccountController {
         Account account = new Account();
         BeanUtils.copyProperties(registerInfo, account, "id");
         account.setBalance(0.0);
+        account.setRole(registerInfo.getRole());
 
         Account registeredAccount = accountService.saveAccount(account);
         session.setAttribute("accountInfo", registeredAccount);
+
+        if ("ADMIN".equalsIgnoreCase(registeredAccount.getRole())) {
+            model.addAttribute("adminName", registeredAccount.getName());
+            model.addAttribute("allaccount", accountService.getAllAccounts());
+            model.addAttribute("allTransactions", accountService.getAllTransactions());
+            return "admindashboard";
+        }
 
         return "redirect:/dashboard";
     }
@@ -67,94 +74,33 @@ public class AccountController {
         return "login";
     }
 
-    @PostMapping("/loginAccount")
+    @PostMapping("/login")
     public String loginAccount(@ModelAttribute("logininfo") LoginInfo loginInfo, HttpSession session, Model model) {
         try {
             Account account = accountService.login(loginInfo);
+
             if (account != null) {
                 session.setAttribute("accountInfo", account);
-                return "redirect:/dashboard";
+
+                String role = account.getRole();
+
+                if ("ADMIN".equalsIgnoreCase(role)) {
+                    model.addAttribute("adminName", account.getName());
+                    model.addAttribute("allaccount", accountService.getAllAccounts());
+                    model.addAttribute("allTransactions", accountService.getAllTransactions());
+                    return "admindashboard";
+                } else {
+                    return "redirect:/dashboard";
+                }
             }
+
             model.addAttribute("error", "Invalid email or password!");
             return "login";
+
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
         }
-    }
-
-    @PostMapping("/deposit")
-    public String deposit(@RequestParam("amount") double amount, HttpSession session) {
-        Account loginAccount = (Account) session.getAttribute("accountInfo");
-
-        if (loginAccount != null && amount > 0) {
-            double newBalance = loginAccount.getBalance() + amount;
-
-            long accountId = ((Number) loginAccount.getId()).longValue();
-            accountService.updateBalanceById((long) accountId, newBalance);
-
-            loginAccount.setBalance(newBalance);
-            session.setAttribute("accountInfo", loginAccount);
-        }
-        return "redirect:/dashboard";
-    }
-
-    @PostMapping("/withdraw")
-    public String withdraw(@RequestParam("amount") double amount, HttpSession session) {
-        Account loginAccount = (Account) session.getAttribute("accountInfo");
-
-        if (loginAccount != null && amount > 0 && loginAccount.getBalance() >= amount) {
-            double newBalance = loginAccount.getBalance() - amount;
-
-            long accountId = ((Number) loginAccount.getId()).longValue();
-            accountService.updateBalanceById((long) accountId, newBalance);
-
-            loginAccount.setBalance(newBalance);
-            session.setAttribute("accountInfo", loginAccount);
-        }
-        return "redirect:/dashboard";
-    }
-
-    @PostMapping("/topup")
-    public String topup(@RequestParam("amount") double amount, HttpSession session) {
-        Account loginAccount = (Account) session.getAttribute("accountInfo");
-
-        if (loginAccount != null && amount > 0 && loginAccount.getBalance() >= amount) {
-            double newBalance = loginAccount.getBalance() - amount;
-
-            long accountId = ((Number) loginAccount.getId()).longValue();
-            accountService.updateBalanceById((long) accountId, newBalance);
-
-            loginAccount.setBalance(newBalance);
-            session.setAttribute("accountInfo", loginAccount);
-        }
-        return "redirect:/dashboard";
-    }
-
-    @PostMapping("/transfer")
-    public String transfer(@ModelAttribute("transferInfo") TransferInfo transferInfo, HttpSession session) {
-        Account loginAccount = (Account) session.getAttribute("accountInfo");
-
-        if (loginAccount != null && transferInfo != null && transferInfo.getAmount() > 0) {
-            if (loginAccount.getBalance() >= transferInfo.getAmount()) {
-
-                Account recipient = accountService.findByEmail(transferInfo.getRecipientEmail());
-                if (recipient != null) {
-                    double newSenderBalance = loginAccount.getBalance() - transferInfo.getAmount();
-                    double newRecipientBalance = recipient.getBalance() + transferInfo.getAmount();
-
-                    long senderId = ((Number) loginAccount.getId()).longValue();
-                    long recipientId = ((Number) recipient.getId()).longValue();
-
-                    accountService.updateBalanceById((long) senderId, newSenderBalance);
-                    accountService.updateBalanceById((long) recipientId, newRecipientBalance);
-
-                    loginAccount.setBalance(newSenderBalance);
-                    session.setAttribute("accountInfo", loginAccount);
-                }
-            }
-        }
-        return "redirect:/dashboard";
     }
 
     @GetMapping("/dashboard")

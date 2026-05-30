@@ -6,20 +6,23 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-public class Account  extends  AbstractEntity{
+public class Account extends AbstractEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String role; // Lombok completely manages getRole() and setRole() automatically now!
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false, unique = true)
     private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -30,11 +33,6 @@ public class Account  extends  AbstractEntity{
 
     private double balance;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL
-            , orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
-
-
-
-
 }

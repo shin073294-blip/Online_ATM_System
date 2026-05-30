@@ -8,46 +8,42 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #383858;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            padding: 20px 0;
-            box-sizing: border-box;
         }
-
-        h1 {
-            font-family: monospace;
-            color: #f4f4f9;
-            margin-bottom: 20px;
-        }
-
         .RegisterForm {
             background: white;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 420px;
+            width: 380px;
         }
-
-        h2 {
+        h1 {
             color: #333;
             margin-bottom: 5px;
         }
-
         p {
             color: #666;
             font-size: 14px;
             margin-bottom: 25px;
         }
-
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: left;
+        }
         .input-group {
             margin-bottom: 18px;
             text-align: left;
         }
-
         .input-group label {
             display: block;
             font-size: 13px;
@@ -55,7 +51,6 @@
             margin-bottom: 5px;
             font-weight: 600;
         }
-
         .input-field {
             width: 100%;
             padding: 12px;
@@ -65,12 +60,10 @@
             box-sizing: border-box;
             transition: border-color 0.2s;
         }
-
         .input-field:focus {
             border-color: #43a047;
             outline: none;
         }
-
         .btn-register {
             width: 100%;
             padding: 12px;
@@ -84,83 +77,69 @@
             transition: background-color 0.2s;
             margin-top: 10px;
         }
-
         .btn-register:hover {
             background-color: #2e7d32;
         }
-
         .back-link {
             display: inline-block;
             margin-top: 15px;
-            color: #1e88e5;
+            color: #43a047;
             text-decoration: none;
             font-size: 14px;
         }
-
         .back-link:hover {
             text-decoration: underline;
-        }
-
-        .error-message {
-            color: #d32f2f;
-            background-color: #ffebee;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 15px;
-            border: 1px solid #ffcdd2;
-            text-align: left;
         }
     </style>
 </head>
 <body>
 
-<h1>ONLINE ATM SYSTEM</h1>
-
 <div class="RegisterForm">
-    <h2>Create Account</h2>
-    <p>Please fill in the details below to open a new account</p>
+    <h1>Create Account</h1>
+    <p>Join the ATM Network by filling out your info below</p>
 
-    <div th:if="${error}" class="error-message">
-        <strong>Error:</strong> <span th:text="${error}">Error details text</span>
-    </div>
 
+    <!-- Properly binds data to your RegisterInfo request transfer entity object -->
     <form th:action="@{/registerAccount}" th:object="${registerInfo}" method="POST">
 
         <div class="input-group">
-            <label>Full Name 👤</label>
-            <input type="text" th:field="*{name}" class="input-field" placeholder="Enter Your Full Name" required>
+            <label>Full Name</label>
+            <input type="text" th:field="*{name}" class="input-field" placeholder="Enter your full name" required>
         </div>
 
         <div class="input-group">
-            <label>Account Email ✉️</label>
-            <input type="email" th:field="*{email}" class="input-field" placeholder="Enter Your Email Address" required>
+            <label>Email Address</label>
+            <input type="email" th:field="*{email}" class="input-field" placeholder="name@example.com" required>
         </div>
 
         <div class="input-group">
-            <label>Phone Number 📱</label>
-            <input type="text" th:field="*{phoneNumber}" class="input-field" placeholder="Enter Your Phone Number" required>
+            <label>Phone Number</label>
+            <input type="text" th:field="*{phoneNumber}" class="input-field" placeholder="Enter phone number" required>
         </div>
 
         <div class="input-group">
-            <label>Home Address 🏠</label>
-            <input type="text" th:field="*{address}" class="input-field" placeholder="Enter Your Home Address" required>
+            <label>Choose a Password / PIN</label>
+            <input type="password" th:field="*{password}" class="input-field" placeholder="Enter password" required>
         </div>
 
         <div class="input-group">
-            <label>Password 🔑</label>
-            <input type="text" th:field="*{password}" class="input-field" placeholder="Create a Security Password" required>
+            <label>Confirm Password</label>
+            <input type="password" th:field="*{confirmPassword}" class="input-field" placeholder="Repeat password" required>
         </div>
+
 
         <div class="input-group">
-            <label>Confirm Password 🔄</label>
-            <input type="text" th:field="*{confirmPassword}" class="input-field" placeholder="Retype Your Password" required>
+            <label>Account Type / Role</label>
+            <select th:field="*{role}" class="input-field" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Admin</option>
+            </select>
         </div>
 
-        <button type="submit" class="btn-register">📝 Register Account</button>
+        <button type="submit" class="btn-register"> Sign Up</button>
     </form>
 
-    <a th:href="@{/}" class="back-link">← Cancel and Go Home</a>
+    <a th:href="@{/}" class="back-link">← Go Back Home</a>
 </div>
 
 </body>

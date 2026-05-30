@@ -10,4 +10,5 @@ public class RegisterInfo {
     private String confirmPassword;
     private String phoneNumber;
     private String address;
+    private String role;
 }

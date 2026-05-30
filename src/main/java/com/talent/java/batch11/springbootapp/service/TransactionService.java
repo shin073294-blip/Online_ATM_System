@@ -1,7 +1,9 @@
 package com.talent.java.batch11.springbootapp.service;
 
 import com.talent.java.batch11.springbootapp.model.Transaction;
+import java.util.List;
 
 public interface TransactionService {
-    public void saveTransaction(Transaction transaction);
+    void saveTransaction(Transaction transaction);
+    List<Transaction> getAllTransactions();
 }

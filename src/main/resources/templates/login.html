@@ -110,7 +110,7 @@
         <strong>Error:</strong> <span th:text="${error}">Invalid details alert text</span>
     </div>
 
-    <form th:action="@{/loginAccount}" th:object="${logininfo}" method="POST">
+    <form th:action="@{/login}" th:object="${logininfo}" method="POST">
 
         <div class="input-group">
             <label>Account Email ✉️</label>
@@ -119,7 +119,7 @@
 
         <div class="input-group">
             <label>Password 🔑</label>
-            <input type="text" th:field="*{password}" class="input-field" placeholder="Please Enter Your Password" required>
+            <input type="password" th:field="*{password}" class="input-field" placeholder="Please Enter Your Password" required>
         </div>
 
         <button type="submit" class="btn-login">🔒 Log In</button>

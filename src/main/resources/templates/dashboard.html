@@ -30,20 +30,22 @@
             border-bottom: 2px solid #eeeeee;
             padding-bottom: 10px;
             margin-top: 0;
+            margin-bottom: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
+            color: #333333;
         }
         th, td {
-            padding: 10px;
+            padding: 12px 10px;
             text-align: left;
             border-bottom: 1px solid #dddddd;
         }
         th {
             background-color: #f4f4f9;
-            color: #333333;
+            color: #383858;
         }
         .options-list {
             list-style: none;
@@ -55,6 +57,8 @@
             border: 1px solid #dddddd;
             margin-bottom: 10px;
             border-radius: 4px;
+            display: flex;
+            align-items: center;
         }
         .options-list form {
             display: inline-block;
@@ -66,21 +70,26 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        button {
+        button, .btn-link {
             padding: 6px 12px;
             background-color: #383858;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
         }
-        button:hover {
+        button:hover, .btn-link:hover {
             background-color: #2c2c44;
         }
         .logout-link {
             color: #d32f2f;
             text-decoration: none;
             font-weight: bold;
+        }
+        .logout-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -91,27 +100,27 @@
 </div>
 
 <div class="container">
-    <h2>Users in Database</h2>
+
+    <h2><span th:text="${currentAccount.name}">User</span> Transaction History</h2>
     <table>
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Balance</th>
+            <th>Txn ID</th>
+            <th>Transaction Type</th>
+            <th>Amount</th>
+            <th>Previous Balance</th>
+            <th>Date &amp; Time</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="acc : ${allaccount}">
-            <td th:text="${acc.id}">1</td>
-            <td th:text="${acc.name}">Name</td>
-            <td th:text="${acc.email}">Email</td>
-            <td th:text="${acc.phoneNumber}">Phone</td>
-            <td th:text="${acc.address}">Address</td>
-            <td th:text="${acc.balance}">0.0</td>
+        <tr th:each="txn : ${transactions}">
+            <td th:text="${txn.id}">1001</td>
+            <td th:text="${txn.transactionType}">DEPOSIT</td>
+            <td th:text="'$' + ${#numbers.formatDecimal(txn.amount, 1, 2)}">$0.00</td>
+            <td th:text="'$' + ${#numbers.formatDecimal(txn.previousAmount, 1, 2)}">$0.00</td>
+            <td th:text="${txn.createdDate}">2026-00-00 00:00:00</td>
         </tr>
+
         </tbody>
     </table>
 
@@ -152,7 +161,7 @@
 
         <li>
             <strong>5. Check Balance</strong>
-            <span style="margin-left: 20px; font-weight: bold; color: #2e7d32;" th:text="'Your current balance is: ' + ${currentAccount.balance}">0.0</span>
+            <span style="margin-left: 20px; font-weight: bold; color: #2e7d32;" th:text="'Your current balance is: $' + ${#numbers.formatDecimal(currentAccount.balance, 1, 2)}">0.00</span>
         </li>
 
 
@@ -160,9 +169,8 @@
             <strong>6. Logout</strong>
             <a th:href="@{/logout}" class="logout-link" style="margin-left: 20px;">Click here to logout</a>
         </li>
-
-
     </ul>
+
 </div>
 
 </body>

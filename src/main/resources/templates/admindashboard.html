@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #383858;
+            color: #ffffff;
+            padding: 40px;
+        }
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            color: #333333;
+            padding: 30px;
+            border-radius: 8px;
+        }
+        h1, h2 {
+            color: #383858;
+            margin-top: 0;
+        }
+        h3 {
+            color: #2e7d32;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #dddddd;
+        }
+        th {
+            background-color: #f4f4f9;
+        }
+        .logout-link {
+            color: #d32f2f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h1>System Management Dashboard</h1>
+    <h3 th:text="'Welcome Back Admin ' + ${adminName}">Welcome Back Admin</h3>
+    <p><a th:href="@{/logout}" class="logout-link">Click here to logout</a></p>
+    <hr/>
+
+    <h2>All Registered Bank Accounts</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Account ID</th>
+            <th>Full Name</th>
+            <th>Email Address</th>
+            <th>Phone Number</th>
+            <th>Current Balance</th>
+            <th>System Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="acc : ${allaccount}">
+            <td th:text="${acc.id}">1</td>
+            <td th:text="${acc.name}">Name</td>
+            <td th:text="${acc.email}">Email</td>
+            <td th:text="${acc.phoneNumber}">Phone</td>
+            <td th:text="'$' + ${acc.balance}">$0.00</td>
+            <td th:text="${acc.role}">USER</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Global User Transactions Audit</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Txn ID</th>
+            <th>Account Holder</th>
+            <th>Transaction Type</th>
+            <th>Amount</th>
+            <th>Previous Balance</th>
+            <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="txn : ${allTransactions}">
+            <td th:text="${txn.id}">1001</td>
+            <td th:text="${txn.account != null ? txn.account.name : 'System'}">User Holder</td>
+            <td th:text="${txn.transactionType}">TYPE</td>
+            <td th:text="'$' + ${txn.amount}">$0.00</td>
+            <td th:text="'$' + ${txn.previousAmount}">$0.00</td>
+            <td th:text="${txn.createdDate}">Date</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
