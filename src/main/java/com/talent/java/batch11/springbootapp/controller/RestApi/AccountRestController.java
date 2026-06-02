@@ -1,10 +1,12 @@
 package com.talent.java.batch11.springbootapp.controller.RestApi;
 
+import com.talent.java.batch11.springbootapp.dto.request.TransactionRequest;
+import com.talent.java.batch11.springbootapp.dto.request.TransferInfo;
+import com.talent.java.batch11.springbootapp.dto.response.*;
 import com.talent.java.batch11.springbootapp.model.Account;
 import com.talent.java.batch11.springbootapp.dto.request.LoginInfo;
 import com.talent.java.batch11.springbootapp.dto.request.RegisterInfo;
-import com.talent.java.batch11.springbootapp.dto.response.AccountResponse;
-import com.talent.java.batch11.springbootapp.dto.response.LoginResponse;
+import com.talent.java.batch11.springbootapp.model.Transaction;
 import com.talent.java.batch11.springbootapp.service.AccountService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,22 +37,20 @@ public class AccountRestController {
             return ResponseEntity.badRequest().body("Error: An account with this email already exists!");
         }
 
-        // Convert DTO to DB Entity layout
+
         Account account = new Account();
         BeanUtils.copyProperties(registerInfo, account, "id");
         account.setBalance(0.0);
         account.setRole(registerInfo.getRole());
 
         Account registeredAccount = accountService.saveAccount(account);
-
-        // Convert to secure Response DTO so we don't leak the password field back to Bruno
         AccountResponse response = new AccountResponse();
         BeanUtils.copyProperties(registeredAccount, response);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 2. LOGIN (via Bruno)
+
     @PostMapping("/login")
     public ResponseEntity<?> loginAccount(@RequestBody LoginInfo loginInfo) {
         try {
@@ -71,6 +72,102 @@ public class AccountRestController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<DepositResponse> deposit(@RequestBody TransactionRequest request) {
+        accountService.processDeposit(request.getAccountId(), request.getAmount());
+        Account updatedAccount = accountService.findById(request.getAccountId());
+
+        List<Transaction> allTransactions = updatedAccount.getTransactions();
+        List<Transaction> latestTransactionOnly = allTransactions.isEmpty() ? allTransactions :
+                List.of(allTransactions.get(allTransactions.size() - 1));
+
+        return ResponseEntity.ok(new DepositResponse((int) updatedAccount.getBalance(), latestTransactionOnly));
+    }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<WithdrawResponse> withdraw(@RequestBody TransactionRequest request) {
+        accountService.processWithdraw(request.getAccountId(), request.getAmount());
+        Account updatedAccount = accountService.findById(request.getAccountId());
+
+        List<Transaction> allTransactions = updatedAccount.getTransactions();
+        List<Transaction> latestTransactionOnly = allTransactions.isEmpty() ? allTransactions :
+                List.of(allTransactions.get(allTransactions.size() - 1));
+
+        WithdrawResponse response = new WithdrawResponse();
+        response.setBalance((int) updatedAccount.getBalance());
+        response.setTransactions(latestTransactionOnly);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/topup")
+    public ResponseEntity<TopUpResponse> topup(@RequestBody TransactionRequest request) {
+        accountService.processTopUp(request.getAccountId(), request.getAmount());
+        Account updatedAccount = accountService.findById(request.getAccountId());
+
+
+        List<Transaction> allTransactions = updatedAccount.getTransactions();
+        List<Transaction> latestTransactionOnly = allTransactions.isEmpty() ? allTransactions :
+                List.of(allTransactions.get(allTransactions.size() - 1));
+
+        TopUpResponse response = new TopUpResponse();
+        response.setBalance((int) updatedAccount.getBalance());
+        response.setTransactions(latestTransactionOnly);
+        return ResponseEntity.ok(response);
+    } // Make sure this import is at the very top of your file!
+
+    @GetMapping("/history")
+    public ResponseEntity<List<Transaction>> getTransactionHistory(@RequestBody Map<String, Long> requestBody) {
+
+        Long id = requestBody.get("id");
+        Account account = accountService.findById(id);
+        if (account == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(account.getTransactions());
+    }
+
+    @GetMapping("/viewaccount")
+    public ResponseEntity<Account> getAccountDetails(@RequestBody Map<String, Long> requestBody){
+        Long id = requestBody.get("id");
+        Account account = accountService.findById(id);
+        return ResponseEntity.ok(account);
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<?> viewAllAccounts(@RequestBody Map<String, Long> requestBody) {
+        Long id = requestBody.get("id");
+        String role = accountService.checkRole(id.intValue());
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access Denied: You do not have permission to view the account table.");
+        }
+        List<Account> allAccounts = accountService.getAllAccounts();
+        return ResponseEntity.ok(allAccounts);
+    }
+
+
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferResponse> transfer(@RequestBody TransferInfo transferInfo) {
+        accountService.processTransfer(
+                transferInfo.getSenderId(),
+                transferInfo.getRecipientEmail(),
+                transferInfo.getAmount()
+        );
+        Account updatedAccount = accountService.findById(transferInfo.getSenderId());
+
+
+        List<Transaction> allTransactions = updatedAccount.getTransactions();
+        List<Transaction> latestTransactionOnly = allTransactions.isEmpty() ? allTransactions :
+                List.of(allTransactions.get(allTransactions.size() - 1));
+
+        TransferResponse response = new TransferResponse();
+        response.setBalance((int) updatedAccount.getBalance());
+        response.setTransactions(latestTransactionOnly);
+
+        return ResponseEntity.ok(response);
     }
 
     // 3. GET DASHBOARD DATA FOR A SPECIFIC USER (via Bruno)
