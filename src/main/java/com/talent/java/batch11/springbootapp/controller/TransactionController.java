@@ -1,7 +1,7 @@
 package com.talent.java.batch11.springbootapp.controller;
 
 import com.talent.java.batch11.springbootapp.model.Account;
-import com.talent.java.batch11.springbootapp.request.TransferInfo;
+import com.talent.java.batch11.springbootapp.dto.request.TransferInfo;
 import com.talent.java.batch11.springbootapp.service.AccountService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;

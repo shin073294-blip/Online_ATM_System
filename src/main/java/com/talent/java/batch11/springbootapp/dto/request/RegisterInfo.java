@@ -1,4 +1,4 @@
-package com.talent.java.batch11.springbootapp.request;
+package com.talent.java.batch11.springbootapp.dto.request;
 
 import lombok.Data;
 

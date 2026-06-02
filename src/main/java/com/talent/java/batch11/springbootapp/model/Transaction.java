@@ -1,5 +1,6 @@
 package com.talent.java.batch11.springbootapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.talent.java.batch11.springbootapp.model.enumType.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,11 +28,12 @@ public class Transaction {
     private double amount;
     private double previousAmount;
 
+    @JsonIgnore// To make ghost loop disappear
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    // Custom constructor matching your custom design layout
+
     public Transaction(TransactionType transactionType, double amount, double previousAmount) {
         this.createdDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.transactionType = transactionType;

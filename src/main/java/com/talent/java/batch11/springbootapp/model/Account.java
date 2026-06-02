@@ -15,8 +15,7 @@ public class Account extends AbstractEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String role; // Lombok completely manages getRole() and setRole() automatically now!
-
+    private String role;
     @Column(nullable = false)
     private String name;
 

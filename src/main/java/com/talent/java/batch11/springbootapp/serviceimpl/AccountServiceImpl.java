@@ -5,7 +5,7 @@ import com.talent.java.batch11.springbootapp.model.Transaction;
 import com.talent.java.batch11.springbootapp.model.enumType.TransactionType;
 import com.talent.java.batch11.springbootapp.repository.AccountRepository;
 import com.talent.java.batch11.springbootapp.repository.TransactionRepository;
-import com.talent.java.batch11.springbootapp.request.LoginInfo;
+import com.talent.java.batch11.springbootapp.dto.request.LoginInfo;
 import com.talent.java.batch11.springbootapp.service.AccountService;
 import com.talent.java.batch11.springbootapp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,18 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Account getAccountById(Long id) {
+        return accountRepository.findById((long) id).orElse(null);
+    }
+
+    // ADD THIS METHOD:
+    @Override
+    public Account findById(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + id));
     }
 
     @Override
@@ -93,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findAll();
     }
 
-    // 🔑 NEW: Track and write transaction entries for Deposits using your TransactionService
+
     @Transactional
     @Override
     public void processDeposit(Long accountId, double amount) {
@@ -110,7 +122,6 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    // 🔑 NEW: Track and write transaction entries for Withdrawals using your TransactionService
     @Transactional
     @Override
     public void processWithdraw(Long accountId, double amount) {
@@ -127,7 +138,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    // 🔑 NEW: Track and write transaction entries for Mobile Top-ups using your TransactionService
+
     @Transactional
     @Override
     public void processTopUp(Long accountId, double amount) {
@@ -144,7 +155,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    // 🔑 NEW: Track and write mutual transaction entries for Fund Transfers using your TransactionService
+
     @Transactional
     @Override
     public void processTransfer(Long senderId, String recipientEmail, double amount) {

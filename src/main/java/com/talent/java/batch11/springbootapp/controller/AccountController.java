@@ -1,8 +1,8 @@
 package com.talent.java.batch11.springbootapp.controller;
 
 import com.talent.java.batch11.springbootapp.model.Account;
-import com.talent.java.batch11.springbootapp.request.LoginInfo;
-import com.talent.java.batch11.springbootapp.request.RegisterInfo;
+import com.talent.java.batch11.springbootapp.dto.request.LoginInfo;
+import com.talent.java.batch11.springbootapp.dto.request.RegisterInfo;
 import com.talent.java.batch11.springbootapp.service.AccountService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.ui.Model;
