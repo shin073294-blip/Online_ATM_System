@@ -116,7 +116,7 @@ public class AccountRestController {
         response.setBalance((int) updatedAccount.getBalance());
         response.setTransactions(latestTransactionOnly);
         return ResponseEntity.ok(response);
-    } // Make sure this import is at the very top of your file!
+    }
 
     @GetMapping("/history")
     public ResponseEntity<List<Transaction>> getTransactionHistory(@RequestBody Map<String, Long> requestBody) {
@@ -136,7 +136,7 @@ public class AccountRestController {
         return ResponseEntity.ok(account);
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/admin/account")
     public ResponseEntity<?> viewAllAccounts(@RequestBody Map<String, Long> requestBody) {
         Long id = requestBody.get("id");
         String role = accountService.checkRole(id.intValue());
@@ -146,6 +146,18 @@ public class AccountRestController {
         }
         List<Account> allAccounts = accountService.getAllAccounts();
         return ResponseEntity.ok(allAccounts);
+    }
+
+    @GetMapping("/admin/transaction")
+    public ResponseEntity<?> viewAllTransactions(@RequestBody Map<String, Long> requestBody){
+        Long id= requestBody.get("id");
+        String role = accountService.checkRole(id.intValue());
+        if (!"ADMIN".equalsIgnoreCase(role)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Access Denied: You do not have permission to view the account table.");
+        }
+        List<Transaction> allTransactions = accountService.getAllTransactions();
+        return ResponseEntity.ok(allTransactions);
     }
 
 
@@ -180,7 +192,7 @@ public class AccountRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Account not found!");
         }
 
-        // Package up data payloads neatly for Bruno to display
+
         Map<String, Object> dashboardData = new HashMap<>();
 
         AccountResponse accountProfile = new AccountResponse();
