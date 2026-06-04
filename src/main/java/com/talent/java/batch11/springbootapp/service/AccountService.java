@@ -3,12 +3,16 @@ package com.talent.java.batch11.springbootapp.service;
 import com.talent.java.batch11.springbootapp.model.Account;
 import com.talent.java.batch11.springbootapp.model.Transaction;
 import com.talent.java.batch11.springbootapp.dto.request.LoginInfo;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface AccountService {
         public Account login(LoginInfo loginInfo);
+
+        ResponseEntity handleLoginRequest(LoginInfo loginInfo);
+
         public Account saveAccount(Account account);
         public Account findByEmail(String email);
         Account getAccountById(Long id);

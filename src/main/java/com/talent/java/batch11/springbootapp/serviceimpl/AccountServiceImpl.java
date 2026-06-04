@@ -7,8 +7,12 @@ import com.talent.java.batch11.springbootapp.repository.AccountRepository;
 import com.talent.java.batch11.springbootapp.repository.TransactionRepository;
 import com.talent.java.batch11.springbootapp.dto.request.LoginInfo;
 import com.talent.java.batch11.springbootapp.service.AccountService;
+import com.talent.java.batch11.springbootapp.service.TokenService;
 import com.talent.java.batch11.springbootapp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +28,11 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    // 🔑 Injecting your specialized transaction component cleanly
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private TokenService tokenService;
 
     @Override
     public Account login(LoginInfo loginInfo) {
@@ -37,6 +43,33 @@ public class AccountServiceImpl implements AccountService {
         return account;
     }
 
+    @Override
+    public ResponseEntity handleLoginRequest(LoginInfo loginInfo) {
+
+        Account account = accountRepository.findAccountByEmail(loginInfo.getEmail());
+        if (account == null || !account.getPassword().equals(loginInfo.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+
+        String accessToken = tokenService.generateAccessToken(account);
+        String refreshToken = tokenService.generateRefreshToken(account);
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accessToken", accessToken);
+        headers.add("refreshToken", refreshToken);
+
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("message", "Login successful!");
+        body.put("id", account.getId());
+        body.put("name", account.getName());
+        body.put("role", account.getRole());
+
+        return new ResponseEntity<>(body, headers, HttpStatus.OK);
+    }
+    
+    
     @Override
     @Transactional
     public Account saveAccount(Account account) {
@@ -90,10 +123,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String checkRole(int id) {
-        // 🔑 Cast the int parameter to a Long to match your updated repository layout
+
         Optional<Account> accountOpt = accountRepository.findById((long) id);
         if (accountOpt.isPresent()) {
-            // 🔑 Fixed: Changed .getrole() to .getRole() with a capital 'R' to match Lombok's camelCase generation
             String role = accountOpt.get().getRole();
             return role != null ? role : "USER";
         }
@@ -180,7 +212,6 @@ public class AccountServiceImpl implements AccountService {
             transactionService.saveTransaction(recipientTx);
         }
     }
-
 
     @Override
     public List<Transaction> getAllTransactions() {
