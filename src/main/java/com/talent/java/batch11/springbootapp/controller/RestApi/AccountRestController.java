@@ -230,16 +230,29 @@ public class AccountRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody RegisterInfo updateInfo) {
+    public ResponseEntity<?> updateAccount(@PathVariable Long id, @RequestBody Map<String, Object> updateInfo) {
         Account existingAccount = accountService.findById(id);
         if (existingAccount == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: Account not found!");
         }
 
-        BeanUtils.copyProperties(updateInfo, existingAccount, "id", "balance");
+        if (updateInfo.containsKey("name")) {
+            existingAccount.setName((String) updateInfo.get("name"));
+        }
+        if (updateInfo.containsKey("email")) {
+            existingAccount.setEmail((String) updateInfo.get("email"));
+        }
+        if (updateInfo.containsKey("address")) {
+            existingAccount.setAddress((String) updateInfo.get("address"));
+        }
+        if (updateInfo.containsKey("phoneNumber")) {
+            existingAccount.setPhoneNumber((String) updateInfo.get("phoneNumber"));
+        }
+        if (updateInfo.containsKey("role")) {
+            existingAccount.setRole((String) updateInfo.get("role"));
+        }
 
         Account savedAccount = accountService.saveAccount(existingAccount);
-
 
         AccountResponse response = new AccountResponse();
         BeanUtils.copyProperties(savedAccount, response);

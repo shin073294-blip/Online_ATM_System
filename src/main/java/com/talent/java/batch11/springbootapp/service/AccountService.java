@@ -22,6 +22,7 @@ public interface AccountService {
         public List<Account> getAllAccounts();
         public String checkRole(int id);
         List<Transaction> getAllTransactionsByAccountId(Long accountId);
+        void deleteById(Long id);
 
         @Transactional
         void processDeposit(Long accountId, double amount);

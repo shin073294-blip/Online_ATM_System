@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public Account saveAccount(Account account) {
         try {
-            System.out.println("Saving Account " + account);
+            //System.out.println("Saving Account " + account);
             return accountRepository.save(account);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -86,11 +86,10 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findById((long) id).orElse(null);
     }
 
-    // ADD THIS METHOD:
+
     @Override
     public Account findById(Long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + id));
+        return accountRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -211,6 +210,12 @@ public class AccountServiceImpl implements AccountService {
             recipientTx.setAccount(recipient);
             transactionService.saveTransaction(recipientTx);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        accountRepository.deleteById(id);
     }
 
     @Override
