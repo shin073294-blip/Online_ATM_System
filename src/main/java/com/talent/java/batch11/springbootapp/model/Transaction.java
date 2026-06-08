@@ -40,5 +40,8 @@ public class Transaction {
         this.amount = amount;
         this.previousAmount = previousAmount;
     }
+
+    public Transaction(TransactionType transactionType, double amount, double prev, Account account) {
+    }
 }
 
